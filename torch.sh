@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 USAGE="Usage: torch [<OPTIONS>]
 
 Options:
@@ -7,7 +7,7 @@ Options:
 -d, --duration <num>  duration of sampling in seconds
 -o, --output <file>   file to save flamegraph to"
 
-while [[ $# > 0 ]]
+while [[ $# -gt 0 ]]
 do
     key="$1"
 
@@ -53,17 +53,17 @@ function get_temp_file() {
     local tmppath=${1:-/tmp}
     local tmpfile=$2${2:+-}
     tmpfile=$tmppath/$tmpfile$RANDOM$RANDOM.tmp
-    if [ -e $tmpfile ]
+    if [ -e "$tmpfile" ]
     then
-        tmpfile=$(gettmpfile $1 $2)
+        tmpfile=$(gettmpfile "$1" "$2")
     fi
-    echo $tmpfile
+    echo "$tmpfile"
 }
 
 TEMP_FILE=$(get_temp_file /tmp torch)
 echo "sampling pid $PID for $DURATION seconds" && \
-perf record -o $TEMP_FILE -F 199 -p $PID -a --call-graph dwarf -- sleep $DURATION > /dev/null && \
+perf record -o "$TEMP_FILE" -F 199 -p "$PID" -a --call-graph dwarf -- sleep "$DURATION" > /dev/null && \
 echo "saving flame graph to $OUTPUT" && \
-perf script -i $TEMP_FILE | ./stackcollapse-perf.pl | ./flamegraph.pl > $OUTPUT && \
+perf script -i "$TEMP_FILE" | ./stackcollapse-perf.pl | ./flamegraph.pl > "$OUTPUT" && \
 echo "done."
-rm -rf $TEMP_FILE
+rm -rf "$TEMP_FILE"
